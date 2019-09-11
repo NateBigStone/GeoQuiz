@@ -12,6 +12,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "QuizActivity";
+    private static final String KEY_INDEX = "index";
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mPrevButton;
@@ -34,11 +35,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate(Bundle) called");
         setContentView(R.layout.activity_main);
-
+        // Saves State to retain data after rotation
+        if (savedInstanceState != null) {
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0 );
+        }
+        // Interactive parts of the app
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
-
         mTrueButton = (Button) findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
                 checkAnswer(false);
             }
         });
-
+        //Previous button, will not work if on the first question
+        //TODO: disable the previous button when on the first question
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 updateQuestion();
             }
         });
-
+        //Next button. Uses modulo to go beyond the end of the array
         mNextButton = (Button) findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,10 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 updateQuestion();
             }
         });
-
         updateQuestion();
     }
-
+    //logs for the different states of the app
     @Override
     public void onStart() {
         super.onStart();
@@ -92,6 +96,13 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, "onPause() called");
     }
+    //Retains data after being rotated
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "onSaveInstanceState");
+        savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+    }
 
     @Override
     public void onStop() {
@@ -104,14 +115,12 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "onDestroy() called");
     }
-
-
-
+    //updates the text to the next question
     private void updateQuestion() {
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
     }
-
+    // Function for checking if the answer is correct
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
@@ -123,7 +132,8 @@ public class MainActivity extends AppCompatActivity {
         else {
             messageResId = R.string.incorrect_toast;
         }
-        //https://developer.android.com/reference/android/widget/Toast#setGravity(int,%20int,%20int)
+        //Bonus Challenge to put the toast on top
+        // https://developer.android.com/reference/android/widget/Toast#setGravity(int,%20int,%20int)
         Toast answerToast = Toast.makeText(this, messageResId, Toast.LENGTH_SHORT);
         answerToast.setGravity(android.view.Gravity.TOP, 0, 350);
         answerToast.show();
