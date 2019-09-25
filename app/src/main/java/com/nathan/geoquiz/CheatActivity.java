@@ -27,6 +27,11 @@ public class CheatActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
         return intent;
     }
+
+    public static boolean wasAnswerShown(Intent result) {
+        return result.getBooleanExtra(EXTRA_ANSWER_SHOWN, false);
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +50,8 @@ public class CheatActivity extends AppCompatActivity {
                     mAnswerTextView.setText(R.string.true_button);
                 } else {
                     mAnswerTextView.setText(R.string.false_button);
-                    setAnswerShownResult(true);
                 }
+                setAnswerShownResult(true);
             }
         });
     }
